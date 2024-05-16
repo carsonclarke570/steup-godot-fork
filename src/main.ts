@@ -110,9 +110,9 @@ async function run(platform: Platform): Promise<void> {
   try {
     // Ensure paths we are using exist.
     core.startGroup(`📂 Ensuring working directories exist...`)
-    fs.mkdirSync(downloadsDir, {recursive: true})
-    fs.mkdirSync(installationDir, {recursive: true})
-    fs.mkdirSync(binDir, {recursive: true})
+    fs.mkdirSync(downloadsDir, { recursive: true })
+    fs.mkdirSync(installationDir, { recursive: true })
+    fs.mkdirSync(binDir, { recursive: true })
     core.info(`✅ Working directories exist`)
     core.endGroup()
 
@@ -148,7 +148,7 @@ async function run(platform: Platform): Promise<void> {
 
       // If the godot installation folder already exists, remove it before extracting the ZIP file. This will "uninstall" other installations (e.g. on version changes).
       if (fs.existsSync(installationDir))
-        fs.rmdirSync(installationDir, {recursive: true})
+        fs.rmdirSync(installationDir, { recursive: true })
 
       const godotExtractedPath = await toolsCache.extractZip(
         godotDownloadedPath,
@@ -189,7 +189,7 @@ async function run(platform: Platform): Promise<void> {
 
         // If the export template folder already exists, remove it before extracting the ZIP file. This will "uninstall" other installations (e.g. on version changes).
         if (fs.existsSync(exportTemplatePath))
-          fs.rmdirSync(exportTemplatePath, {recursive: true})
+          fs.rmdirSync(exportTemplatePath, { recursive: true })
 
         const exportTemplateExtractedPath = await toolsCache.extractZip(
           templateDownloadedPath,
@@ -282,8 +282,8 @@ async function run(platform: Platform): Promise<void> {
 
     // If an alias already exists, clear the bin folder before creating the new alias
     if (fs.existsSync(binDir)) {
-      fs.rmSync(binDir, {recursive: true, force: true})
-      fs.mkdirSync(binDir, {recursive: true})
+      fs.rmSync(binDir, { recursive: true, force: true })
+      fs.mkdirSync(binDir, { recursive: true })
     }
 
     fs.linkSync(godotExecutable, godotAlias)
