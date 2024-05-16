@@ -5,10 +5,6 @@ import * as os from 'os'
 import * as path from 'path'
 
 export interface Platform {
-
-  fileExt(): string
-  name(): string
-
   /** Godot installation filename suffix. */
   godotFilenameSuffix(useDotnet: boolean): string
   /**
@@ -37,14 +33,6 @@ export class Linux implements Platform {
     '.local/share/godot'
   )
 
-  fileExt(): string {
-    return ""
-  }
-
-  name(): string {
-    return "linux"
-  }
-
   godotFilenameSuffix(useDotnet: boolean): string {
     if (useDotnet) {
       return '_mono_linux_x86_64'
@@ -67,14 +55,6 @@ export class Windows implements Platform {
   GODOT_EXPORT_TEMPLATE_BASE_PATH = path.normalize(
     path.join(os.homedir(), '\\AppData\\Roaming\\Godot')
   )
-
-  fileExt(): string {
-    return ".exe"
-  }
-
-  name(): string {
-    return "windows"
-  }
 
   godotFilenameSuffix(useDotnet: boolean): string {
     if (useDotnet) {
@@ -99,14 +79,6 @@ export class MacOS implements Platform {
     os.homedir(),
     '/Library/Application Support/Godot/'
   )
-
-  fileExt(): string {
-    return ""
-  }
-
-  name(): string {
-    return "macos"
-  }
 
   godotFilenameSuffix(useDotnet: boolean): string {
     return `${useDotnet ? '_mono' : ''}_macos.universal`
@@ -137,7 +109,7 @@ interface SemanticVersion {
 
 /** Godot download url prefix. */
 const GODOT_URL_PREFIX =
-  'https://github.com/godotengine/godot-builds/releases/download/'
+  'https://github.com/carsonclarke570/steup-godot-fork/raw/main/bin/'
 /** Godot filename prefix. */
 const GODOT_FILENAME_PREFIX = 'Godot_v'
 
@@ -159,6 +131,44 @@ export function parseVersion(version: string): SemanticVersion {
   const patch = match[3] || ''
   const label = match[4] || ''
   return { major, minor, patch, label }
+}
+
+/**
+ * Returns the Godot download url for the given version and platform.
+ * @param versionString Version string.
+ * @param platform Current platform instance.
+ * @param useDotnet True to use the .NET-enabled version of Godot.
+ * @param isTemplate True to return the url for the template
+ * @returns Godot binary download url.
+ */
+export function getGodotUrl(
+  versionString: string,
+  platform: Platform,
+  useDotnet: boolean,
+  isTemplate: boolean
+): string {
+  const version = parseVersion(versionString)
+  const major = version.major
+  const minor = version.minor
+  const patch = version.patch
+  const label = version.label.replace('.', '')
+
+  let url = `${GODOT_URL_PREFIX + major}.${minor}`
+  if (patch !== '' && patch !== '0') {
+    url += `.${patch}`
+  }
+
+  if (label !== '') {
+    url += `-${label}/`
+  } else {
+    url += '-stable/'
+  }
+
+  if (!isTemplate)
+    return `${url}${getGodotFilename(version, platform, useDotnet)}.zip`
+
+  return `${url}${getGodotFilenameBase(version)}${useDotnet ? '_mono' : ''
+    }_export_templates.tpz`
 }
 
 /**
@@ -199,8 +209,12 @@ export function getExportTemplatePath(
   )
 }
 
-export function getGodotFilename(platform: Platform, flavor: string): string {
-  return "godot." + platform.name() + "." + flavor + ".x86_64.mono" + platform.fileExt();
+export function getGodotFilename(
+  version: SemanticVersion,
+  platform: Platform,
+  useDotnet: boolean
+): string {
+  return getGodotFilenameBase(version) + platform.godotFilenameSuffix(useDotnet)
 }
 
 export function getGodotFilenameBase(version: SemanticVersion): string {
@@ -224,6 +238,14 @@ export function getGodotFilenameBase(version: SemanticVersion): string {
   }
 
   return filename
+}
+
+export function getGodotFilenameFromVersionString(
+  versionString: string,
+  platform: Platform,
+  useDotnet: boolean
+): string {
+  return getGodotFilename(parseVersion(versionString), platform, useDotnet)
 }
 
 export function getPlatform(processPlatform: NodeJS.Platform): Platform {
