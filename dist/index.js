@@ -50,7 +50,7 @@ const os = __importStar(__nccwpck_require__(2037));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const utils_1 = __nccwpck_require__(918);
 function run(platform) {
-    var _a, _b, _c;
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         // Get action inputs
         const pathRelative = core.getInput('path').replace(/\s/g, '');
@@ -69,22 +69,6 @@ function run(platform) {
         // Log values
         core.startGroup('🏝 Environment Information');
         core.info(`📁 Checkout directory: ${checkoutDirectory}`);
-        // See if Godot version needs to be inferred from a global.json file.
-        if (version.toLowerCase().includes('global')) {
-            const globalJsonPath = path_1.default.join(checkoutDirectory, version);
-            const hasGlobalJsonFile = fs.existsSync(globalJsonPath);
-            core.info(`📢 Inferring Godot version from global.json file.`);
-            core.info(`🌐 global.json file path: ${globalJsonPath}`);
-            core.info(`🌐 global.json file exists: ${hasGlobalJsonFile}`);
-            if (!hasGlobalJsonFile) {
-                throw new Error(`🚨 Cannot find global.json file to infer the Godot version from.`);
-            }
-            const globalJsonFileContents = fs.readFileSync(globalJsonPath, 'utf8');
-            core.info(`🖨 global.json contents: ${globalJsonFileContents}`);
-            const globalJson = (_b = JSON.parse(globalJsonFileContents)) !== null && _b !== void 0 ? _b : {};
-            core.info(`🖨 global.json parsed contents: ${JSON.stringify(globalJsonFileContents, null, 2)}`);
-            version = (_c = globalJson['msbuild-sdks']['Godot.NET.Sdk']) !== null && _c !== void 0 ? _c : '';
-        }
         // Compute derived information from Godot version.
         const versionName = (0, utils_1.getGodotFilenameFromVersionString)(version, platform, useDotnet);
         const godotUrl = (0, utils_1.getGodotUrl)(version, platform, useDotnet, false);
@@ -365,7 +349,7 @@ class MacOS {
 }
 exports.MacOS = MacOS;
 /** Godot download url prefix. */
-const GODOT_URL_PREFIX = 'https://github.com/godotengine/godot-builds/releases/download/';
+const GODOT_URL_PREFIX = 'https://github.com/carsonclarke570/steup-godot-fork/raw/main/bin/';
 /** Godot filename prefix. */
 const GODOT_FILENAME_PREFIX = 'Godot_v';
 /**
