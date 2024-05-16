@@ -5,6 +5,10 @@ import * as os from 'os'
 import * as path from 'path'
 
 export interface Platform {
+
+  fileExt(): string
+  name(): string
+
   /** Godot installation filename suffix. */
   godotFilenameSuffix(useDotnet: boolean): string
   /**
@@ -33,6 +37,14 @@ export class Linux implements Platform {
     '.local/share/godot'
   )
 
+  fileExt(): string {
+    return ""
+  }
+
+  name(): string {
+    return "linux"
+  }
+
   godotFilenameSuffix(useDotnet: boolean): string {
     if (useDotnet) {
       return '_mono_linux_x86_64'
@@ -55,6 +67,14 @@ export class Windows implements Platform {
   GODOT_EXPORT_TEMPLATE_BASE_PATH = path.normalize(
     path.join(os.homedir(), '\\AppData\\Roaming\\Godot')
   )
+
+  fileExt(): string {
+    return ".exe"
+  }
+
+  name(): string {
+    return "windows"
+  }
 
   godotFilenameSuffix(useDotnet: boolean): string {
     if (useDotnet) {
@@ -79,6 +99,14 @@ export class MacOS implements Platform {
     os.homedir(),
     '/Library/Application Support/Godot/'
   )
+
+  fileExt(): string {
+    return ""
+  }
+
+  name(): string {
+    return "macos"
+  }
 
   godotFilenameSuffix(useDotnet: boolean): string {
     return `${useDotnet ? '_mono' : ''}_macos.universal`
@@ -130,7 +158,7 @@ export function parseVersion(version: string): SemanticVersion {
   const minor = match[2] || ''
   const patch = match[3] || ''
   const label = match[4] || ''
-  return {major, minor, patch, label}
+  return { major, minor, patch, label }
 }
 
 /**
@@ -167,9 +195,8 @@ export function getGodotUrl(
   if (!isTemplate)
     return `${url}${getGodotFilename(version, platform, useDotnet)}.zip`
 
-  return `${url}${getGodotFilenameBase(version)}${
-    useDotnet ? '_mono' : ''
-  }_export_templates.tpz`
+  return `${url}${getGodotFilenameBase(version)}${useDotnet ? '_mono' : ''
+    }_export_templates.tpz`
 }
 
 /**
@@ -210,12 +237,8 @@ export function getExportTemplatePath(
   )
 }
 
-export function getGodotFilename(
-  version: SemanticVersion,
-  platform: Platform,
-  useDotnet: boolean
-): string {
-  return getGodotFilenameBase(version) + platform.godotFilenameSuffix(useDotnet)
+export function getGodotFilename(platform: Platform, flavor: string): string {
+  return "godot." + platform.name() + "." + flavor + ".x86_64.mono" + platform.fileExt();
 }
 
 export function getGodotFilenameBase(version: SemanticVersion): string {
@@ -242,11 +265,10 @@ export function getGodotFilenameBase(version: SemanticVersion): string {
 }
 
 export function getGodotFilenameFromVersionString(
-  versionString: string,
   platform: Platform,
   useDotnet: boolean
 ): string {
-  return getGodotFilename(parseVersion(versionString), platform, useDotnet)
+  return getGodotFilename(platform, useDotnet)
 }
 
 export function getPlatform(processPlatform: NodeJS.Platform): Platform {
@@ -272,7 +294,7 @@ export async function findExecutablesRecursively(
 ): Promise<string[]> {
   core.info(`${indent}📁 ${dir}`)
   let executables: string[] = []
-  const files = await fs.promises.readdir(dir, {withFileTypes: true})
+  const files = await fs.promises.readdir(dir, { withFileTypes: true })
   for (const file of files) {
     const filePath = path.join(dir, file.name)
     if (file.isDirectory()) {

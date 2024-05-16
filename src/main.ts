@@ -8,6 +8,7 @@ import path from 'path'
 import {
   findExecutablesRecursively,
   getExportTemplatePath,
+  getGodotFilename,
   getGodotFilenameFromVersionString,
   getGodotUrl,
   getPlatform,
@@ -36,12 +37,7 @@ async function run(platform: Platform): Promise<void> {
   core.info(`📁 Checkout directory: ${checkoutDirectory}`)
 
   // Compute derived information from Godot version.
-  const versionName = getGodotFilenameFromVersionString(
-    version,
-    platform,
-    useDotnet
-  )
-  const godotUrl = getGodotUrl(version, platform, useDotnet, false)
+  const versionName = getGodotFilename(platform, "editor")
   const godotDownloadPath = path.join(downloadsDir, `${versionName}.zip`)
   const godotInstallationPath = platform.getUnzippedPath(
     installationDir,
@@ -50,33 +46,32 @@ async function run(platform: Platform): Promise<void> {
   )
   const binDir = path.join(userDir, binRelativePath)
 
-  const exportTemplateUrl = includeTemplates
-    ? getGodotUrl(version, platform, useDotnet, true)
-    : ''
-  const exportTemplatePath = includeTemplates
-    ? getExportTemplatePath(version, platform, useDotnet)
-    : ''
-  const exportTemplateDownloadPath = includeTemplates
-    ? path.join(downloadsDir, 'export_templates.zip')
-    : ''
+  // const exportTemplateUrl = includeTemplates
+  //   ? getGodotUrl(version, platform, useDotnet, true)
+  //   : ''
+  // const exportTemplatePath = includeTemplates
+  //   ? getExportTemplatePath(version, platform, useDotnet)
+  //   : ''
+  // const exportTemplateDownloadPath = includeTemplates
+  //   ? path.join(downloadsDir, 'export_templates.zip')
+  //   : ''
 
   core.info(`🤖 Godot version: ${version}`)
   core.info(`🤖 Godot version name: ${versionName}`)
   core.info(`🟣 Use .NET: ${useDotnet}`)
-  core.info(`🤖 Godot download url: ${godotUrl}`)
   core.info(`🧑‍💼 User directory: ${userDir}`)
   core.info(`🌏 Downloads directory: ${downloadsDir}`)
   core.info(`📥 Godot download path: ${godotDownloadPath}`)
   core.info(`📦 Godot installation directory: ${installationDir}`)
   core.info(`🤖 Godot installation path: ${godotInstallationPath}`)
 
-  if (includeTemplates) {
-    core.info(`🤖 Export Template url: ${exportTemplateUrl}`)
-    core.info(`📥 Export Template download path: ${exportTemplateDownloadPath}`)
-    core.info(`🤖 Export Template Path: ${exportTemplatePath}`)
-  } else {
-    core.info(`⏭️ Skipping Export Templates.`)
-  }
+  // if (includeTemplates) {
+  //   core.info(`🤖 Export Template url: ${exportTemplateUrl}`)
+  //   core.info(`📥 Export Template download path: ${exportTemplateDownloadPath}`)
+  //   core.info(`🤖 Export Template Path: ${exportTemplatePath}`)
+  // } else {
+  //   core.info(`⏭️ Skipping Export Templates.`)
+  // }
 
   core.info(`📂 Bin directory: ${binDir}`)
   core.info(`🤖 GodotSharp release: ${godotSharpRelease}`)
