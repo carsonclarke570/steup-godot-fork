@@ -3,14 +3,12 @@ import * as core from '@actions/core'
 import * as toolsCache from '@actions/tool-cache'
 import * as fs from 'fs'
 import * as os from 'os'
-import path from 'path'
+import path, { normalize } from 'path'
 
 import {
   findExecutablesRecursively,
   getExportTemplatePath,
   getGodotFilename,
-  getGodotFilenameFromVersionString,
-  getGodotUrl,
   getPlatform,
   Platform
 } from './utils'
@@ -49,9 +47,13 @@ async function run(platform: Platform): Promise<void> {
   // const exportTemplateUrl = includeTemplates
   //   ? getGodotUrl(version, platform, useDotnet, true)
   //   : ''
-  // const exportTemplatePath = includeTemplates
-  //   ? getExportTemplatePath(version, platform, useDotnet)
-  //   : ''
+  const exportTemplatePath = normalize(
+    path.join(
+      platform.GODOT_EXPORT_TEMPLATE_BASE_PATH,
+      'export_templates',
+      "TEST"
+    )
+  )
   // const exportTemplateDownloadPath = includeTemplates
   //   ? path.join(downloadsDir, 'export_templates.zip')
   //   : ''
@@ -89,10 +91,8 @@ async function run(platform: Platform): Promise<void> {
     // See if Godot is already installed.
     core.startGroup(`🤔 Checking if Godot is already in cache...`)
 
-    const cachedPaths = includeTemplates
-      ? [godotInstallationPath, exportTemplatePath]
-      : [godotInstallationPath]
-    const cacheKey = includeTemplates ? godotUrl : `${godotUrl}-no-templates`
+    const cachedPaths = [godotInstallationPath, exportTemplatePath]
+    const cacheKey = includeTemplates ? version : `${version}-no-templates`
     const cached = await cache.restoreCache(cachedPaths.slice(), cacheKey)
 
     let executables: string[]
