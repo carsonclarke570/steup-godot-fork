@@ -20,12 +20,12 @@ async function run(platform: Platform): Promise<void> {
   const downloadsRelativePath = core
     .getInput('downloads-path')
     .replace(/\s/g, '')
-  let version = core.getInput('version').replace(/\s/g, '')
-  const useDotnet = core.getBooleanInput('use-dotnet')
+  let version = "4.3.0-dev"
+  const useDotnet = true
   const binRelativePath = core.getInput('bin-path').replace(/\s/g, '')
   const godotSharpRelease = core.getBooleanInput('godot-sharp-release')
   const checkoutDirectory = process.env['GITHUB_WORKSPACE'] ?? ''
-  const includeTemplates = core.getBooleanInput('include-templates')
+  const includeTemplates = true
 
   const userDir = os.homedir()
   const downloadsDir = path.join(userDir, downloadsRelativePath)
@@ -34,31 +34,6 @@ async function run(platform: Platform): Promise<void> {
   // Log values
   core.startGroup('🏝 Environment Information')
   core.info(`📁 Checkout directory: ${checkoutDirectory}`)
-
-  // See if Godot version needs to be inferred from a global.json file.
-  if (version.toLowerCase().includes('global')) {
-    const globalJsonPath = path.join(checkoutDirectory, version)
-    const hasGlobalJsonFile = fs.existsSync(globalJsonPath)
-    core.info(`📢 Inferring Godot version from global.json file.`)
-    core.info(`🌐 global.json file path: ${globalJsonPath}`)
-    core.info(`🌐 global.json file exists: ${hasGlobalJsonFile}`)
-    if (!hasGlobalJsonFile) {
-      throw new Error(
-        `🚨 Cannot find global.json file to infer the Godot version from.`
-      )
-    }
-    const globalJsonFileContents = fs.readFileSync(globalJsonPath, 'utf8')
-    core.info(`🖨 global.json contents: ${globalJsonFileContents}`)
-    const globalJson = JSON.parse(globalJsonFileContents) ?? {}
-    core.info(
-      `🖨 global.json parsed contents: ${JSON.stringify(
-        globalJsonFileContents,
-        null,
-        2
-      )}`
-    )
-    version = globalJson['msbuild-sdks']['Godot.NET.Sdk'] ?? ''
-  }
 
   // Compute derived information from Godot version.
   const versionName = getGodotFilenameFromVersionString(
